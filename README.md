@@ -19,7 +19,7 @@ This public snapshot corresponds to review candidate `8e924860`.
 - Layer B historical derivation: 9/9 checks
 - F01 evidence-custody correction: implemented in the verified lineage
 - F02/F03 authorization, cancellation, and durable audit lifecycle: implemented and under independent correction
-- Track B runtime runtime implementation and production-equivalent validation: not started
+- Track B runtime implementation and production-equivalent validation: not started
 - External key custody, WORM publication, external enforcement, and target-host validation: not proven
 
 An independent review found six false-positive E10 verifier cases in this snapshot, including hostname-prefix/userinfo confusion and a missing production `STARTUP` requirement. The findings and remediation requirements are documented in [docs/INDEPENDENT_REVIEW_STATUS.md](docs/INDEPENDENT_REVIEW_STATUS.md). E10-v3 is the planned correction.
