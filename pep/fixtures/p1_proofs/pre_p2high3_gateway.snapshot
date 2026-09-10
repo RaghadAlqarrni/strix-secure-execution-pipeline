@@ -1,0 +1,566 @@
+"""
+Production Execution Gateway (PEP).
+
+Differences from the Phase 2a/2b proof harness, all deliberate:
+
+  * STREAMING, not buffering. Bodies are relayed in chunks and hashed
+    incrementally, so provenance survives without holding a response in memory.
+  * CONCURRENCY LIMIT. A bounded worker pool; exhaustion is an audited denial,
+    not an unbounded queue.
+  * PER-CONNECTION PIN STATE. The (family, ip, port) bound is established once
+    and carried in ConnectionState for the connection's whole life.
+  * ADDRESS-FAMILY AWARE SOCKETS. AF_INET6 vs AF_INET is chosen from the pin,
+    never guessed and never retried across families.
+  * DYNAMIC CA MINTING per destination.
+  * FAIL CLOSED on any PDP, DNS, or certificate-machinery failure.
+  * LIFECYCLE: idle/total timeouts, registry-driven teardown for the kill switch.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import os
+import socket
+import ssl
+import threading
+import time
+import uuid
+from dataclasses import dataclass, field
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+from .addressing import Pin, canonical_host
+from .audit import AuditLog
+from .ca import CAError, InterceptionCA
+from .pdp import PDP
+
+MAX_CONNECTIONS = int(os.environ.get("PEP_MAX_CONNECTIONS", "64"))
+IDLE_TIMEOUT = float(os.environ.get("PEP_IDLE_TIMEOUT", "30"))
+TOTAL_TIMEOUT = float(os.environ.get("PEP_TOTAL_TIMEOUT", "300"))
+CHUNK = 65536
+
+
+@dataclass(eq=False)   # identity semantics: a live connection is not "equal" to
+                       # another with the same field values, and it must stay
+                       # hashable so the registry can hold it in a set.
+class ConnectionState:
+    """Everything bound to ONE client connection, including its pin.
+
+    ``conn_id`` is what lets an auditor tie a specific client request to a
+    specific PEP decision and, later, to a specific termination — instead of
+    matching on timestamps or hostnames, which a stale-but-valid record from an
+    earlier run would also satisfy.
+    """
+    client_ip: str
+    conn_id: str = field(default_factory=lambda: uuid.uuid4().hex)
+    test_nonce: str = ""     # client-supplied LABEL, explicitly non-authoritative
+    row_id: str = ""         # which acceptance row this connection belongs to
+    started: float = field(default_factory=time.time)
+    pin: Pin | None = None
+    canonical: str | None = None
+    program_id: str | None = None
+    sockets: list = field(default_factory=list)
+
+    def track(self, s) -> None:
+        self.sockets.append(s)
+
+    def close_all(self) -> bool:
+        """Close every tracked socket. Returns True if at least one was still
+        LIVE and was actually shut down.
+
+        The return value is the evidence. terminate_all() used to report its
+        pre-close SNAPSHOT as terminated_conn_ids, so a connection that finished
+        naturally in the window was still named as a kill-switch victim. The
+        field then meant "was in the registry when the switch fired", while
+        every row title built on it says "the kill switch terminated THIS
+        connection". Reporting what was actually shut down closes that gap.
+        """
+        tore_down = False
+        for s in self.sockets:
+            try:
+                s.shutdown(socket.SHUT_RDWR)
+                tore_down = True          # only a LIVE socket can be shut down
+            except OSError:
+                pass                      # already closed / never connected
+            try:
+                s.close()
+            except OSError:
+                pass
+        return tore_down
+
+
+class Registry:
+    """Live-connection registry with a TERMINAL kill state.
+
+    R-8, the race this closes. terminate_all() used to snapshot under the lock
+    and then close outside it:
+
+        with self._lock:
+            victims = list(self._conns)     # snapshot
+        for c in victims:                   # close OUTSIDE the lock
+            c.close_all()
+
+    A connection that registered AFTER the snapshot was never in `victims`, so
+    it survived the kill switch and kept running. The window was the entire
+    close loop — every socket shutdown wide. For a control whose whole job is
+    "stop everything now", "everything" meant "everything I happened to see a
+    moment ago".
+
+    The registry is now a one-way door. terminate_all() sets `_killed` and
+    drains the set in the SAME lock acquisition, so there is no instant at which
+    a connection can be added without seeing the flag. add() refuses afterwards
+    and tells the caller, which closes the connection immediately. A thread
+    caught between acquire() and add() is therefore handled too.
+    """
+
+    def __init__(self) -> None:
+        self._conns: set[ConnectionState] = set()
+        self._lock = threading.Lock()
+        self._sem = threading.BoundedSemaphore(MAX_CONNECTIONS)
+        self._killed = False
+
+    def acquire(self) -> bool:
+        return self._sem.acquire(blocking=False)
+
+    def release(self) -> None:
+        try:
+            self._sem.release()
+        except ValueError:
+            pass
+
+    def add(self, c: ConnectionState) -> bool:
+        """Register a live connection. Returns False if the kill switch has
+        already fired — the caller MUST NOT proceed with the connection."""
+        with self._lock:
+            if self._killed:
+                return False
+            self._conns.add(c)
+            return True
+
+    def remove(self, c: ConnectionState) -> None:
+        with self._lock:
+            self._conns.discard(c)
+
+    def is_killed(self) -> bool:
+        with self._lock:
+            return self._killed
+
+    def rearm(self) -> None:
+        """Clear the terminal state when the kill file is withdrawn."""
+        with self._lock:
+            self._killed = False
+
+    def terminate_all(self) -> tuple[list[str], list[str]]:
+        """Fire the kill switch.
+
+        Returns (actually_torn_down, snapshot). The FIRST list is the evidence:
+        conn_ids whose sockets were still live and were shut down here. The
+        second is what was in the registry when the switch fired, kept for
+        diagnosis — the difference between the two is exactly the set of
+        connections that had already finished on their own.
+        """
+        with self._lock:
+            self._killed = True            # same critical section as the drain,
+            victims = list(self._conns)    # so nothing can slip in between
+            self._conns.clear()
+        torn = [c.conn_id for c in victims if c.close_all()]
+        return torn, [c.conn_id for c in victims]
+
+    def count(self) -> int:
+        with self._lock:
+            return len(self._conns)
+
+
+class Gateway(BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+    server_version = "StrixPEP/1.0"
+
+    pdp: PDP = None          # injected by serve()
+    ca: InterceptionCA = None
+    audit: AuditLog = None
+    registry: Registry = None
+
+    def log_message(self, *a) -> None:
+        pass
+
+    # ------------------------------------------------------------------ helpers
+    def _deny(self, reason: str, url: str, method: str, code: int = 403,
+             conn_id: str = "", row_id: str = "", test_nonce: str = "") -> None:
+        """P2-HIGH-3 (TRIAGE_UNIFIED.md): conn_id (and, once it exists,
+        row_id/test_nonce) is attached whenever a caller has a ConnectionState
+        to give — previously every denial through this method was audited
+        with no conn_id at all, though most calls sit inside _connect_flow
+        where `state` is right there in scope. Two calls genuinely have none:
+        MALFORMED_CONNECT_TARGET and CONCURRENCY_LIMIT_REACHED both fire in
+        do_CONNECT BEFORE a ConnectionState is allocated, so there is no
+        conn_id to give — that is correct, not a gap, and conn_id stays
+        empty there. This is deliberately NOT the KILL_SWITCH_ACTIVE denial
+        in do_CONNECT (D-1 / Pass 4): that path's empty row_id/test_nonce is
+        structural for a different reason (it fires before _connect_flow has
+        even read the client's labels) and its fix is gated on DEC-2 (nonce
+        semantics) — untouched here.
+        """
+        body = f'{{"error":"BLOCKED_BY_POLICY","reason":"{reason}"}}'.encode()
+        try:
+            self.send_response(code)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("X-PDP-Decision", "BLOCKED_BY_POLICY")
+            self.send_header("X-PDP-Reason", reason)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        except Exception:
+            pass
+        rec = {"decision": "BLOCKED_BY_POLICY", "reason": reason,
+              "url": url, "method": method, "src": self.client_address[0]}
+        if conn_id:
+            rec["conn_id"] = conn_id
+            rec["row_id"] = row_id
+            rec["test_nonce"] = test_nonce
+        self.audit.write(rec)
+
+    def __getattr__(self, name: str):
+        if name.startswith("do_"):
+            return lambda: self._deny("UNSUPPORTED_PROTOCOL_OR_METHOD", self.path, name[3:])
+        raise AttributeError(name)
+
+    def do_GET(self) -> None:  # noqa: N802
+        self._deny("PLAINTEXT_HTTP_DISABLED", self.path, "GET")
+
+    # ------------------------------------------------------------------ CONNECT
+    def do_CONNECT(self) -> None:  # noqa: N802
+        target = self.path
+        host_raw, sep, p = target.rpartition(":")
+        if not sep or not p.isdigit():
+            return self._deny("MALFORMED_CONNECT_TARGET", f"CONNECT {target}", "CONNECT")
+        port = int(p)
+
+        if not self.registry.acquire():
+            return self._deny("CONCURRENCY_LIMIT_REACHED", f"CONNECT {target}",
+                              "CONNECT", code=503)
+
+        # Everything after acquire() must sit inside the try, or a failure in
+        # between leaks the slot permanently and the PEP denies itself to death.
+        state = ConnectionState(client_ip=self.client_address[0])
+        try:
+            if not self.registry.add(state):
+                # The kill switch fired while this connection was being set up.
+                # Refuse it rather than running it — otherwise "stop everything"
+                # would have a hole exactly the width of the setup path.
+                self.audit.write({"decision": "BLOCKED_BY_POLICY",
+                                  "reason": "KILL_SWITCH_ACTIVE",
+                                  "url": f"CONNECT {target}", "method": "CONNECT",
+                                  "conn_id": state.conn_id,
+                                  "row_id": state.row_id,
+                                  "test_nonce": state.test_nonce,
+                                  "src": state.client_ip})
+                return
+            self._connect_flow(state, target, host_raw, port)
+        except Exception as exc:                      # fail closed on anything
+            self.audit.write({"decision": "BLOCKED_BY_POLICY",
+                              "reason": f"INTERNAL_FAILURE:{type(exc).__name__}",
+                              "url": f"CONNECT {target}", "method": "CONNECT"})
+        finally:
+            state.close_all()
+            self.registry.remove(state)
+            self.registry.release()
+            self.close_connection = True
+
+    def _connect_flow(self, state, target, host_raw, port) -> None:
+        session = self.headers.get("X-Strix-Session", "")
+        asset = self.headers.get("X-Strix-Asset", "")
+        cred = self.headers.get("X-Strix-Cred", "")
+        # Structured labels so the auditor never has to parse a URL or prose.
+        # These are client-chosen and therefore NOT the execution anchor —
+        # run_id (control-plane) is. They only say which row a record belongs to.
+        state.test_nonce = self.headers.get("X-Strix-Nonce", "")
+        state.row_id = self.headers.get("X-Strix-Row", "")
+
+        try:
+            d = self.pdp.decide(src_ip=state.client_ip, authority=host_raw, port=port,
+                                method="CONNECT", session=session, asset=asset, cred_id=cred)
+        except Exception as exc:
+            return self._deny(f"PDP_FAILURE:{type(exc).__name__}", f"CONNECT {target}",
+                              "CONNECT")
+        if not d.allow:
+            return self._deny(d.reason, f"CONNECT {target}", "CONNECT")
+
+        # Pin is established ONCE, here, and reused for this connection's life.
+        state.pin = d.pin
+        state.canonical = canonical_host(host_raw)
+        state.program_id = d.program_id
+
+        try:
+            crt, key = self.ca.leaf_for(state.canonical)
+        except CAError as exc:
+            return self._deny(f"CERT_MINT_FAILED:{exc}", f"CONNECT {target}", "CONNECT")
+
+        self.send_response(200, "Connection Established")
+        self.end_headers()
+
+        seen: list[str | None] = [None]
+
+        def sni_cb(sock, name, ctx):  # noqa: ANN001
+            seen[0] = name
+
+        ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+        try:
+            ctx.load_cert_chain(crt, key)
+        except Exception as exc:
+            return self._deny(f"CERT_LOAD_FAILED:{type(exc).__name__}",
+                              f"CONNECT {target}", "CONNECT")
+        ctx.sni_callback = sni_cb
+
+        raw = self.connection
+        state.track(raw)
+        raw.settimeout(IDLE_TIMEOUT)
+        try:
+            tls = ctx.wrap_socket(raw, server_side=True)
+        except (ssl.SSLError, OSError) as exc:
+            self.audit.write({"decision": "BLOCKED_BY_POLICY",
+                              "reason": "MALFORMED_TLS_CLIENT_HELLO",
+                              "detail": type(exc).__name__,
+                              "url": f"CONNECT {target}", "method": "CONNECT"})
+            return
+        state.track(tls)
+        self._inside(state, tls, port, session, asset, cred, seen[0])
+
+    # --------------------------------------------------------- inside the tunnel
+    def _inside(self, state, tls, port, session, asset, cred, sni) -> None:
+        canon = state.canonical
+        label = f"https://{canon}:{port}"
+
+        if sni is not None and canonical_host(sni) != canon:
+            return self._deny_tls(tls, f"SNI_MISMATCH:{sni}!={canon}", label, "CONNECT")
+
+        head = self._read_head(tls)
+        if head is None:
+            self.audit.write({"decision": "BLOCKED_BY_POLICY",
+                              "reason": "MALFORMED_HTTP_IN_TUNNEL", "url": label})
+            return
+        method, path, headers, pre_body = head
+
+        hdr_host = canonical_host((headers.get("host") or "").split(":")[0]
+                                  if not (headers.get("host") or "").startswith("[")
+                                  else (headers.get("host") or "").split("]")[0] + "]")
+        if hdr_host != canon:
+            return self._deny_tls(tls, f"HOST_HEADER_MISMATCH:{hdr_host}!={canon}",
+                                  label + path, method)
+
+        # Re-decide on the real method, carrying the pin so nothing re-resolves.
+        try:
+            d = self.pdp.decide(src_ip=state.client_ip, authority=canon, port=port,
+                                method=method, session=session, asset=asset,
+                                cred_id=cred, pin=state.pin)
+        except Exception as exc:
+            return self._deny_tls(tls, f"PDP_FAILURE:{type(exc).__name__}",
+                                  label + path, method)
+        if not d.allow:
+            return self._deny_tls(tls, d.reason, label + path, method)
+
+        if d.secret:
+            self.audit.add_secret(d.secret)
+
+        fam = socket.AF_INET6 if state.pin.family == "ipv6" else socket.AF_INET
+        up_ctx = ssl.create_default_context(
+            cafile=os.environ.get("PEP_UPSTREAM_CA") or None)
+        up_ctx.check_hostname = True
+        up_ctx.verify_mode = ssl.CERT_REQUIRED
+        try:
+            plain = socket.socket(fam, socket.SOCK_STREAM)
+            plain.settimeout(IDLE_TIMEOUT)
+            plain.connect((state.pin.ip, state.pin.port))
+            state.track(plain)
+            up = up_ctx.wrap_socket(plain, server_hostname=canon)
+            state.track(up)
+        except ssl.SSLCertVerificationError as exc:
+            self.audit.write({"decision": "BLOCKED_BY_POLICY", "reason": "UPSTREAM_CERT_INVALID",
+                              "detail": str(exc)[:160], "url": label + path,
+                              "pin": state.pin.as_tuple()})
+            return self._deny_tls(tls, "UPSTREAM_CERT_INVALID", label + path, method)
+        except Exception as exc:
+            return self._deny_tls(tls, f"UPSTREAM_ERROR:{type(exc).__name__}",
+                                  label + path, method)
+
+        out = [f"{method} {path} HTTP/1.1", f"Host: {canon}", "Connection: close", "Accept: */*"]
+        if d.secret:
+            out.append(f"Authorization: Bearer {d.secret}")
+        if pre_body:
+            out.append(f"Content-Length: {len(pre_body)}")
+        raw_req = ("\r\n".join(out) + "\r\n\r\n").encode() + pre_body
+        req_hash = hashlib.sha256(raw_req).hexdigest()
+
+        try:
+            up.sendall(raw_req)
+        except Exception as exc:
+            return self._deny_tls(tls, f"UPSTREAM_WRITE:{type(exc).__name__}",
+                                  label + path, method)
+
+        # ---- stream the response back, hashing incrementally ----
+        h = hashlib.sha256()
+        total = 0
+        status = 0
+        first = True
+        deadline = time.time() + TOTAL_TIMEOUT
+        try:
+            while True:
+                if time.time() > deadline:
+                    raise TimeoutError("total_timeout")
+                chunk = up.recv(CHUNK)
+                if not chunk:
+                    break
+                if first:
+                    try:
+                        status = int(chunk.split(b" ", 2)[1])
+                    except Exception:
+                        status = 0
+                    first = False
+                h.update(chunk)
+                total += len(chunk)
+                tls.sendall(chunk)
+        except Exception as exc:
+            self.audit.write({"decision": "CONNECTION_TERMINATED",
+                              "reason": type(exc).__name__, "url": label + path,
+                              "method": method, "bytes_streamed": total,
+                              "conn_id": state.conn_id,
+                              "test_nonce": state.test_nonce, "row_id": state.row_id,
+                              "pin": state.pin.as_tuple()})
+            return
+
+        self.audit.write({
+            "decision": "ALLOW", "reason": "ALLOW", "url": label + path, "method": method,
+            "src": state.client_ip, "program_id": state.program_id,
+            "conn_id": state.conn_id,
+            "test_nonce": state.test_nonce, "row_id": state.row_id,
+            "tls_intercepted": True, "canonical_host": canon, "sni": sni,
+            "pin_family": state.pin.family, "pin_ip": state.pin.ip, "pin_port": state.pin.port,
+            "upstream_status": status, "redirect_followed": False,
+            "credential_injected": bool(d.secret), "streamed_bytes": total,
+            "request_hash": req_hash, "response_hash": h.hexdigest(),
+        })
+
+    def _deny_tls(self, tls, reason, url, method) -> None:
+        body = f'{{"error":"BLOCKED_BY_POLICY","reason":"{reason}"}}'.encode()
+        resp = (b"HTTP/1.1 403 Forbidden\r\nContent-Type: application/json\r\n"
+                b"X-PDP-Decision: BLOCKED_BY_POLICY\r\n"
+                + f"X-PDP-Reason: {reason}\r\nContent-Length: {len(body)}\r\n\r\n".encode()
+                + body)
+        try:
+            tls.sendall(resp)
+            # drain so the close is FIN, not RST — otherwise the kernel discards
+            # our denial and the caller sees a bare socket error instead.
+            tls.settimeout(1.0)
+            try:
+                while tls.recv(CHUNK):
+                    pass
+            except Exception:
+                pass
+        except Exception:
+            pass
+        self.audit.write({"decision": "BLOCKED_BY_POLICY", "reason": reason,
+                          "url": url, "method": method, "tls": True})
+
+    @staticmethod
+    def _read_head(sock):
+        buf = b""
+        while b"\r\n\r\n" not in buf:
+            chunk = sock.recv(CHUNK)
+            if not chunk:
+                return None
+            buf += chunk
+            if len(buf) > 262144:
+                return None
+        head, _, rest = buf.partition(b"\r\n\r\n")
+        lines = head.decode("latin-1").split("\r\n")
+        try:
+            method, path, _ = lines[0].split(" ", 2)
+        except ValueError:
+            return None
+        headers = {}
+        for ln in lines[1:]:
+            if ":" in ln:
+                k, v = ln.split(":", 1)
+                headers[k.strip().lower()] = v.strip()
+        return method, path, headers, rest
+
+
+def kill_watcher(kill_file: str, registry: Registry, audit: AuditLog) -> None:
+    armed = False
+    while True:
+        present = os.path.exists(kill_file)
+        if present and not armed:
+            armed = True
+            torn, snapshot = registry.terminate_all()
+            audit.write({"decision": "KILL_SWITCH",
+                         "reason": "STOP_ALL_TORE_DOWN_LIVE_CONNECTIONS",
+                         "connections_terminated": len(torn),
+                         # Only connections whose sockets were STILL LIVE and
+                         # were shut down here. Verifiers assert membership in
+                         # this field, so it must mean what they claim.
+                         "terminated_conn_ids": torn,
+                         # Diagnosis only: what was registered at kill time. The
+                         # difference from `torn` is the set that had already
+                         # finished on its own. Never used as proof of a kill.
+                         "registered_at_kill": snapshot})
+        elif not present:
+            armed = False
+            registry.rearm()
+        time.sleep(0.25)
+
+
+class DualStackHTTPServer(ThreadingHTTPServer):
+    """Listener that accepts BOTH address families on one socket.
+
+    The previous listener was ThreadingHTTPServer(("0.0.0.0", port), ...).
+    ThreadingHTTPServer inherits address_family = AF_INET, so the PEP was
+    IPv4-ONLY and every IPv6 client received ECONNREFUSED. On an IPv4-only host
+    this was undetectable — the IPv4 suite passed 17/17 while the entire IPv6
+    enforcement path did not exist. It only surfaced on a real dual-stack host,
+    as via-PEP=NOGW.
+
+    IPV6_V6ONLY is set EXPLICITLY rather than relying on the platform default,
+    which differs between kernels and distributions. IPv4 peers then arrive as
+    ::ffff:a.b.c.d, which PDP._program_for_source canonicalizes (and only that
+    form — see the comment there for why the other embeddings must not be).
+    """
+
+    address_family = socket.AF_INET6
+
+    def server_bind(self) -> None:
+        self.socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+        super().server_bind()
+
+
+def serve(*, pdp: PDP, ca: InterceptionCA, audit: AuditLog, kill_file: str,
+          host: str | None = None, port: int = 3128) -> None:
+    registry = Registry()
+    Gateway.pdp, Gateway.ca, Gateway.audit, Gateway.registry = pdp, ca, audit, registry
+    threading.Thread(target=kill_watcher, args=(kill_file, registry, audit),
+                     daemon=True).start()
+
+    # Dual-stack is the intended configuration. A host with no IPv6 must still
+    # be able to run the IPv4 suite, so there is a fallback — but it is LOUD and
+    # AUDITED, never silent. A silent fallback is exactly how a listener ends up
+    # not supporting IPv6 while every dashboard says it does.
+    families = "dual-stack(::, v6only=0)"
+    try:
+        srv = DualStackHTTPServer((host or "::", port), Gateway)
+    except OSError as exc:
+        families = f"IPv4-ONLY(fallback: {type(exc).__name__}: {exc})"
+        srv = ThreadingHTTPServer((host or "0.0.0.0", port), Gateway)
+        audit.write({"decision": "STARTUP_DEGRADED",
+                     "reason": "IPV6_LISTENER_UNAVAILABLE",
+                     "detail": f"{type(exc).__name__}: {exc}", "port": port})
+        print(f"[pep] WARNING: IPv6 listener unavailable ({exc}). "
+              f"Listening IPv4-ONLY. Layer B CANNOT pass in this state.",
+              flush=True)
+
+    bound = srv.socket.getsockname()[:2]
+    audit.write({"decision": "STARTUP", "reason": "PEP_READY",
+                 "max_connections": MAX_CONNECTIONS, "port": port,
+                 "listener": families,
+                 "listen_family": str(srv.socket.family),
+                 "listen_addr": f"{bound[0]}:{bound[1]}"})
+    print(f"[pep] listening {bound[0]}:{bound[1]} [{families}] "
+          f"max_conn={MAX_CONNECTIONS} ca={ca.ca_cert_path}", flush=True)
+    srv.serve_forever()

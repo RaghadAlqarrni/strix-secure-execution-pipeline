@@ -1,0 +1,226 @@
+============================================================================
+ADVERSARIAL FIXTURE BATTERY
+============================================================================
+  FIXTURE                            EXPECTED         ACTUAL           RC
+  ---------------------------------- ---------------- ---------------- --
+  f00_honest                         FIXTURE_VALIDATED FIXTURE_VALIDATED 3   OK
+  f01_stale_execution                FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f02_nonce_mismatch                 FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f03_pin_not_v6                     FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f04_killed_other_conn              FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f05_missing_request_hash           FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f06_missing_response_hash          FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f07_missing_nonce                  FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f08_hidden_non_proven              FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f09_count_mismatch                 FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f10_pp18_unbacked                  FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f11_verifier_hostname_fallback     FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f12_verifier_timestamp_fallback    FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f13_verifier_latest_record         FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f14_verifier_any_kill_event        FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f15_verifier_count_only            FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f16_broken_chain                   FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f17_truncated_log                  FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f18_artifact_run_id_mismatch       FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f19_artifact_self_labelled         FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f20_artifact_run_id_conflict       FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f21_selflabel_matching_runid       FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f22_contradictory_row              FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f23_startup_degraded               FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f24_missing_b4_host_denial         FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f25_b7_unrelated_counter           FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f26_b7_receiver_dead               FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f27_b7_no_packet_attempt           FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f28_b7_wrong_port                  FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f29_b7_measurement_seen            FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f30_b7_counter_unchanged           FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f31_b7_cross_run                   FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+  f32_b7_no_calibration              FIXTURE_REJECTED FIXTURE_REJECTED 1   OK
+
+  fixtures behaving correctly: 33   incorrect: 0
+
+============================================================================
+VERIFIER SELF-TEST (the verifiers are EXECUTED, not just read)
+============================================================================
+  PASS  honest evidence -> B8                                want=PROVEN                             got=PROVEN
+  PASS  honest evidence -> B9                                want=PROVEN                             got=PROVEN
+  PASS  v6 ALLOW from a different execution                  want=NO_MATCHING_RECORD                 got=NO_MATCHING_RECORD
+  PASS  pin_family not ipv6                                  want=PIN_FAMILY_NOT_V6*                 got=PIN_FAMILY_NOT_V6:ipv4
+  PASS  pin labelled ipv6 holding an IPv4 literal            want=PIN_NOT_V6*                        got=PIN_NOT_V6:172.29.0.20
+  PASS  ALLOW record missing both hashes                     want=MISSING*                           got=MISSING:request_hash,response_hash
+  PASS  ALLOW record carries no nonce                        want=NO_TEST_CORRELATION                got=NO_TEST_CORRELATION
+  PASS  kill switch terminated a different connection        want=TERMINATED_A_DIFFERENT_CONNECTION  got=TERMINATED_A_DIFFERENT_CONNECTION
+  PASS  kill record lists no conn_ids                        want=KILL_RECORD_LISTS_NO_CONNECTIONS   got=KILL_RECORD_LISTS_NO_CONNECTIONS
+  PASS  no KILL_SWITCH record at all                         want=NO_KILL_RECORD                     got=NO_KILL_RECORD
+  PASS  no B6 connection record                              want=NO_MATCHING_CONNECTION             got=NO_MATCHING_CONNECTION
+  PASS  B8 and B9 nonces disagree                            want=NONCE_MISMATCH*                    got=NONCE_MISMATCH:nonce-selftest-0001!=DIFFERENT
+  PASS  client received no body before the kill              want=NO_LIVE_STREAM_BEFORE_KILL         got=NO_LIVE_STREAM_BEFORE_KILL
+  PASS  control plane issued no run_id                       want=NO_RUN_ID                          got=NO_RUN_ID
+  PASS  run_id absent from the audit                         want=NO_RECORDS_FOR_RUN                 got=NO_RECORDS_FOR_RUN
+  PASS  audit log contains a malformed line                  want=AUDIT_UNREADABLE_OR_TRUNCATED      got=AUDIT_UNREADABLE_OR_TRUNCATED
+  PASS  PP18 honest chain                                    want=PROVEN                             got=PROVEN
+  PASS  PP18 kill hit a different connection                 want=TERMINATED_A_DIFFERENT_CONNECTION  got=TERMINATED_A_DIFFERENT_CONNECTION
+  PASS  PP18 record carries no nonce                         want=NO_TEST_CORRELATION                got=NO_TEST_CORRELATION
+  PASS  PP18 with no kill record                             want=NO_KILL_RECORD                     got=NO_KILL_RECORD
+
+  VERIFIER SELF-TEST: 20/20
+
+============================================================================
+E9 BEHAVIOURAL FALSIFICATION
+============================================================================
+  PASS  honest                             expected=True got=True failures=[]
+  PASS  unrelated counter source           expected=False got=False failures=['ATTEMPT_AND_DROP_SAME_SOURCE']
+  PASS  receiver dies after C1             expected=False got=False failures=['RECEIVER_CONTROL_FAILED']
+  PASS  packet never observed              expected=False got=False failures=['NO_HOST_PACKET_ATTEMPT']
+  PASS  nonce mismatch                     expected=False got=False failures=['ATTEMPT_TUPLE_MISMATCH']
+  PASS  port mismatch                      expected=False got=False failures=['ATTEMPT_TUPLE_MISMATCH']
+  PASS  measurement delivered              expected=False got=False failures=['MEASUREMENT_REACHED_RECEIVER']
+  PASS  drop counter unchanged             expected=False got=False failures=['EXACT_DROP_COUNTER_NOT_ONE']
+  PASS  drop counter jumps by two          expected=False got=False failures=['EXACT_DROP_COUNTER_NOT_ONE']
+  PASS  cross-run evidence                 expected=False got=False failures=['RUN_ID_MISMATCH']
+  PASS  B3 absent                          expected=False got=False failures=['B3_LIVENESS_NOT_PROVEN']
+  PASS  calibration absent                 expected=False got=False failures=['CALIBRATION_NOT_DELIVERED']
+  PASS  calibration code differs           expected=False got=False failures=['CALIBRATION_CODE_MISMATCH']
+  PASS  stale reused control nonce         expected=False got=False failures=['CONTROL_NONCES_INVALID']
+  PASS  fixture not torn down              expected=False got=False failures=['B7_FIXTURE_NOT_TORN_DOWN']
+  PASS  self-labelled evidence             expected=False got=False failures=['NOT_CONTROL_PLANE_BOUND']
+
+  E9 FALSIFICATION: 16/16
+  PASS raw honest                   expected=True got=True failures=[]
+  PASS raw receiver-contradiction   expected=False got=False failures=['RAW_MEASUREMENT_REACHED_RECEIVER']
+  PASS raw counter-contradiction    expected=False got=False failures=['RAW_EXACT_COUNTER_NOT_ONE']
+  PASS raw identity-contradiction   expected=False got=False failures=['RAW_SENDER_IDENTITY_MISMATCH']
+  PASS raw broad-rule               expected=False got=False failures=['RAW_RULE_NOT_EXACT_FLOW', 'RAW_RULE_RUN_LABEL_MISSING']
+E9 RAW CONTRADICTIONS: 5/5
+  PASS  E9 all→oracle mutation rejected by hash binding
+test_auditor_missing_directory_is_not_certified (__main__.RawRequiredTests.test_auditor_missing_directory_is_not_certified) ... ok
+test_auditor_positive_raw_control_passes (__main__.RawRequiredTests.test_auditor_positive_raw_control_passes) ... ok
+test_each_required_file_removal_fails_both_entrypoints (__main__.RawRequiredTests.test_each_required_file_removal_fails_both_entrypoints) ... ok
+test_forged_summary_still_fails_in_fixture_mode (__main__.RawRequiredTests.test_forged_summary_still_fails_in_fixture_mode) ... ok
+test_production_library_requires_raw_argument (__main__.RawRequiredTests.test_production_library_requires_raw_argument) ... ok
+test_raw_contradiction_cannot_be_hidden_by_summary (__main__.RawRequiredTests.test_raw_contradiction_cannot_be_hidden_by_summary) ... ok
+test_raw_file_replaced_by_directory_fails (__main__.RawRequiredTests.test_raw_file_replaced_by_directory_fails) ... ok
+test_raw_positive_control_passes (__main__.RawRequiredTests.test_raw_positive_control_passes) ... ok
+test_standalone_missing_and_empty_raw_fail (__main__.RawRequiredTests.test_standalone_missing_and_empty_raw_fail) ... ok
+test_summary_fixture_never_emits_release_success (__main__.RawRequiredTests.test_summary_fixture_never_emits_release_success) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 3.606s
+
+OK
+F01 production raw-evidence regression exit: 0
+
+============================================================================
+PIPELINE-ORDER INTEGRATION
+============================================================================
+PIPELINE-ORDER INTEGRATION TEST (collect -> stamp -> verify_layerb -> audit)
+  PASS  sandbox writes run_id: null (contract)           want=FIXTURE_VALIDATED got=FIXTURE_VALIDATED rc=3
+  PASS  sandbox self-labels with the CORRECT run_id      want=FIXTURE_REJECTED got=FIXTURE_REJECTED rc=1
+  PASS  sandbox self-labels with a DIFFERENT run_id      want=FIXTURE_REJECTED got=FIXTURE_REJECTED rc=1
+
+  PIPELINE ORDER: 3/3
+
+============================================================================
+AUDIT LOG SELF-TEST (the root of the authority hierarchy, EXECUTED)
+============================================================================
+AUDIT LOG SELF-TEST — executing the real module
+
+-- hash chain --
+  PASS  a freshly written log verifies                             want=True                     got=True
+  PASS  first record anchors to GENESIS                            want=0000000000000000000000000000000000000000000000000000000000000000 got=0000000000000000000000000000000000000000000000000000000000000000
+  PASS  every prev is sha256 of the preceding line                 want=True                     got=True
+  PASS  an edited middle record breaks the chain                   want=False                    got=False
+  PASS  a deleted record breaks the chain                          want=False                    got=False
+
+-- run_id anchoring --
+  PASS  run_id is stamped on every record                          want=True                     got=True
+  PASS  a caller CANNOT override run_id                            want=run-selftest             got=run-selftest
+  PASS  absent run_id is empty, never omitted                      want=                         got=
+
+-- redaction --
+  PASS  a known secret never appears in the file                   want=False                    got=False
+  PASS  a secret added later is also scrubbed                      want=False                    got=False
+  PASS  redaction reaches nested lists/dicts                       want=True                     got=True
+  PASS  the scrubbed value replaced the secret, not the whole field want=Authorization: Bearer «REDACTED» got=Authorization: Bearer «REDACTED»
+
+-- durability --
+  PASS  fsync is called once per record                            want=2                        got=2
+
+-- concurrent writers --
+  PASS  960 records from 8 threads keep the chain intact           want=True                     got=True
+  PASS  no record was lost                                         want=960                      got=960
+
+-- torn-write recovery --
+  PASS  a torn tail is not rewritten                               want=1                        got=1
+  PASS  verify() reports the torn line rather than hiding it       want=False                    got=False
+
+-- append-only --
+  PASS  earlier bytes are never rewritten                          want=True                     got=True
+
+  AUDIT LOG SELF-TEST: 18/18
+
+============================================================================
+PRECONDITION FIXTURES (a test must not pass when it never ran)
+============================================================================
+PRECONDITION FIXTURES — a test must not pass when it never ran
+
+-- tcp6(): distinct observations, never a blanket BLOCKED --
+  PASS  CONNECTION_REFUSED is NOT counted as blocking            want=False                  got=False
+  PASS  INVALID_ADDRESS is NOT counted as blocking               want=False                  got=False
+  PASS  NO_IPV6_STACK is NOT counted as blocking                 want=False                  got=False
+
+-- tcp6() errno table (the actual fix for defect (a)) --
+  PASS  errno WSAETIMEDOUT   -> TIMEOUT                          want=TIMEOUT                got=TIMEOUT
+  PASS  errno WSAENETUNREACH -> NO_ROUTE                         want=NO_ROUTE               got=NO_ROUTE
+  PASS  errno WSAEHOSTUNREACH -> NO_ROUTE                        want=NO_ROUTE               got=NO_ROUTE
+  PASS  errno WSAENETDOWN    -> LINK_DOWN                        want=LINK_DOWN              got=LINK_DOWN
+  PASS  errno EACCES         -> PERMISSION_DENIED                want=PERMISSION_DENIED      got=PERMISSION_DENIED
+  PASS  errno EPERM          -> PERMISSION_DENIED                want=PERMISSION_DENIED      got=PERMISSION_DENIED
+  PASS  errno WSAECONNREFUSED -> CONNECTION_REFUSED              want=CONNECTION_REFUSED     got=CONNECTION_REFUSED
+  PASS  errno EINVAL         -> INVALID_ADDRESS                  want=INVALID_ADDRESS        got=INVALID_ADDRESS
+  PASS  errno WSAEAFNOSUPPORT -> NO_IPV6_STACK                   want=NO_IPV6_STACK          got=NO_IPV6_STACK
+  FAIL  errno WSAECONNRESET  -> OTHER:ECONNRESET                 want=OTHER:ECONNRESET       got=OTHER:WSAECONNRESET
+  PASS  socket.timeout            -> TIMEOUT                     want=TIMEOUT                got=TIMEOUT
+  PASS  gaierror                  -> INVALID_ADDRESS             want=INVALID_ADDRESS        got=INVALID_ADDRESS
+
+-- prerequisite ABSENT: every observation must fail closed --
+  PASS  no positive control + TIMEOUT                            want=NO_POSITIVE_CONTROL    got=NO_POSITIVE_CONTROL
+  PASS  no positive control + NO_ROUTE                           want=NO_POSITIVE_CONTROL    got=NO_POSITIVE_CONTROL
+  PASS  no positive control + PERMISSION_DENIED                  want=NO_POSITIVE_CONTROL    got=NO_POSITIVE_CONTROL
+  PASS  no positive control + CONNECTION_REFUSED                 want=NO_POSITIVE_CONTROL    got=NO_POSITIVE_CONTROL
+  PASS  no positive control + INVALID_ADDRESS                    want=NO_POSITIVE_CONTROL    got=NO_POSITIVE_CONTROL
+  PASS  no positive control + NO_IPV6_STACK                      want=NO_POSITIVE_CONTROL    got=NO_POSITIVE_CONTROL
+  PASS  no positive control + REACHABLE                          want=NO_POSITIVE_CONTROL    got=NO_POSITIVE_CONTROL
+
+-- prerequisite PRESENT: only real blocking observations prove --
+  PASS  control ok + TIMEOUT (netfilter DROP)                    want=PROVEN                 got=PROVEN
+  PASS  control ok + NO_ROUTE                                    want=PROVEN                 got=PROVEN
+  PASS  control ok + REACHABLE -> the boundary leaked            want=FAILED_OPEN            got=FAILED_OPEN
+  PASS  control ok + CONNECTION_REFUSED (something answered)     want=INCONCLUSIVE_CONNECTION_REFUSED got=INCONCLUSIVE_CONNECTION_REFUSED
+  PASS  control ok + INVALID_ADDRESS (malformed probe)           want=INCONCLUSIVE_INVALID_ADDRESS got=INCONCLUSIVE_INVALID_ADDRESS
+  PASS  control ok + NO_IPV6_STACK (probe never ran)             want=INCONCLUSIVE_NO_IPV6_STACK got=INCONCLUSIVE_NO_IPV6_STACK
+
+-- link-local probes must carry a scope id --
+  PASS  an already-scoped address is left alone                  want=fe80::1%eth0           got=fe80::1%eth0
+  PASS  an unscoped link-local is INCONCLUSIVE, never blocking   want=INCONCLUSIVE_INVALID_ADDRESS got=INCONCLUSIVE_INVALID_ADDRESS
+
+-- blocked_by(): a denial must name the property under test --
+  PASS  SNI test + SNI_MISMATCH denial                           want=BLOCK                  got=BLOCK
+  PASS  SNI test + OUT_OF_SCOPE denial (target not provisioned)  want=BLOCKED_FOR_OTHER_REASON:OUT_OF_SCOPE got=BLOCKED_FOR_OTHER_REASON:OUT_OF_SCOPE
+  PASS  rebind test + UNKNOWN_CREDENTIAL denial                  want=BLOCKED_FOR_OTHER_REASON:UNKNOWN_CREDENTIAL got=BLOCKED_FOR_OTHER_REASON:UNKNOWN_CREDENTIAL
+  PASS  rebind test + DNS_NO_ANSWER denial (host never resolved) want=BLOCKED_FOR_OTHER_REASON:DNS_NO_ANSWER got=BLOCKED_FOR_OTHER_REASON:DNS_NO_ANSWER
+  PASS  a denial with NO reason at all                           want=BLOCKED_FOR_OTHER_REASON:none got=BLOCKED_FOR_OTHER_REASON:none
+  PASS  not blocked at all is reported as-is, not as BLOCK       want=ALLOW                  got=ALLOW
+
+-- dual-stack listener: source canonicalization must not be a spoofing vector --
+  PASS  plain IPv4 source maps to its program                    want=prog_a                 got=prog_a
+  PASS  v4-mapped source maps to the SAME program                want=prog_a                 got=prog_a
+  PASS  6to4 source embedding an in-program v4 is NOT attributed want=None                   got=None
+  PASS  NAT64 source embedding an in-program v4 is NOT attributed want=None                   got=None
+  PASS  unrelated v6 source is not attributed                    want=None                   got=None
+
+  PRECONDITION FIXTURES: 40/41
+
+============================================================================
+  fixtures: PASS   verifier: PASS   E9: PASS   E9-mutation: PASS   order: PASS   preconditions: FAIL   audit-log: PASS
+  BATTERY: FAIL

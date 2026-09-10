@@ -1,0 +1,99 @@
+{
+  "run_id": "run-honest0000000000000000000000",
+  "run_id_source": "control-plane",
+  "rows": [
+    {
+      "layer": "B",
+      "id": "B1",
+      "desc": "row 1",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B2",
+      "desc": "row 2",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B3",
+      "desc": "row 3",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B4",
+      "desc": "row 4",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B5",
+      "desc": "row 5",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B6",
+      "desc": "row 6",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B7",
+      "desc": "row 7",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B8",
+      "desc": "row 8",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B9",
+      "desc": "row 9",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "passed": 9,
+  "total": 9,
+  "test_nonce": "n0nce0000111122223333444455556666"
+}

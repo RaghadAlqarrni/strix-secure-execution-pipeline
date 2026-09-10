@@ -1,0 +1,24 @@
+==============================================================================
+EVIDENCE AUDIT — independent re-derivation from the raw audit log
+  run_id = run-5e0e09247a8cdd40567015c3ba884314
+==============================================================================
+  PASS  E7   audit chain intact, run_id present, startup not degraded 123 records, chain intact, malformed=0, records_for_run=123, startup_degraded=0
+  PASS  E1   every required row has status == PROVEN (strict whitelist), pass == True (no self-contradiction) clean
+  PASS  E2   row ID sets exactly {A1..A30}/{B1..B9}, counts match reality A=30 B=9 dupes=[] extras=[] counts_ok=True
+  PASS  E3   B8/B9 share one nonce, re-derived from raw audit fields  nonce=4a68869930f4e758c09a208474c48ab4 shared by B8/B9 within run run-5e0e09247a8cdd40567015c3ba884314
+  PASS  E4   exact kill conn_id, genuine v6 pin, B4 denials in raw audit b9_conns=['7df82a9e0ef043c6b2c387690a6fdd0f'] killed=12 matched=['7df82a9e0ef043c6b2c387690a6fdd0f'] b8_pin_valid=True b4_sni=1 b4_host=1 b4_nonce_ok=True
+  PASS  E5   all verifier modules: no fallback, no dynamic exec, strict codes verify_layerb_audit.py[35b76327be27] | verify_pp18.py[f0bcc3100767] | verify_b7_evidence.py[dd55049190b9]
+  PASS  E6   IPv4 regression complete and PP18 re-derived from raw audit v4=17/17 pp18_conn=['cf168e03d8f64345b8e348c42f0d678b'] (re-derived from raw audit, kill.json ignored)
+  PASS  E8   audited artifacts bound to THIS run_id by the control plane acceptance=bound layerb=bound v4=bound b7=bound
+  FAIL  E9   B7 off-link UDP containment independently host-derived   RAW_DIRECTORY_ABSENT_OR_UNSAFE
+
+  PEP listener this run:          dual-stack(::, v6only=0)
+  IPv6 ALLOW records in this run: 2
+  KILL_SWITCH records in this run: 2
+  records total / in-run:          123 / 123
+
+------------------------------------------------------------------------------
+  EVIDENCE AUDIT: 8/9
+  RESULT: NOT CERTIFIED — the gate result is NOT supported by evidence
+  Do not treat this run as an IPv6 pass, regardless of the summary.
+------------------------------------------------------------------------------

@@ -1,0 +1,55 @@
+{
+  "status": "IMPLEMENTER_VERIFIED_CANDIDATE_NOT_RELEASE",
+  "f01_tests": {
+    "passed": 10,
+    "methods": 10,
+    "per_file_missing_subcases": 12
+  },
+  "historical_replay": {
+    "baseline_complete": 0,
+    "baseline_missing_raw": 0,
+    "candidate_complete": 0,
+    "candidate_missing_raw": 1
+  },
+  "full_windows_battery_exit": 1,
+  "remaining_failure": "OTHER:WSAECONNRESET != OTHER:ECONNRESET; unchanged platform fixture",
+  "independent_review": "NOT_PERFORMED",
+  "target_linux_execution": "NOT_PERFORMED",
+  "artifacts": [
+    {
+      "name": "f01-replay-results.json",
+      "sha256": "81ce9c535dc701598ed69706c02fbc4792f6c9e743c04ca664736a960cc19af7",
+      "bytes": 1127
+    },
+    {
+      "name": "baseline_complete.txt",
+      "sha256": "4fcf57c2aa5aed77f7b7b2a304b7db0261bb4fcab388b3a1900e9f79df01b9dc",
+      "bytes": 2070
+    },
+    {
+      "name": "baseline_missing_raw_negative_control.txt",
+      "sha256": "4fcf57c2aa5aed77f7b7b2a304b7db0261bb4fcab388b3a1900e9f79df01b9dc",
+      "bytes": 2070
+    },
+    {
+      "name": "candidate_complete.txt",
+      "sha256": "5e6ec2fa9b382aeea625a18bb2cd029748b38222e6b0720ffa4ddcf7167068d1",
+      "bytes": 2070
+    },
+    {
+      "name": "candidate_missing_raw.txt",
+      "sha256": "acddcf8cf70adf1d4c4bbf6ae88cf1b525eec8e19591ae5b08375701168af0bb",
+      "bytes": 2164
+    },
+    {
+      "name": "f01-full-fixture-battery-final.txt",
+      "sha256": "f41b0184c0407afeed5127d143fd353c7d582087cb2cdf44f3dc9d9ef15d730f",
+      "bytes": 18591
+    },
+    {
+      "name": "passive-archive-inventory.json",
+      "sha256": "c201203555474d9afe86e1f3452b78a90eaa88f1860bbd87693f3c0d6cace3b9",
+      "bytes": 4870
+    }
+  ]
+}

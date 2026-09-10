@@ -1,0 +1,35 @@
+{
+  "scope": "offline replay, not fresh acquisition or release",
+  "results": [
+    {
+      "name": "baseline_complete",
+      "exit": 0,
+      "expected_exit": 0,
+      "certified_marker": true,
+      "log_sha256": "dc1ad54b7b81e62a8dfb70f090a64c8027dc0fc3b57ccc2cff7318f0b60ed8bf"
+    },
+    {
+      "name": "baseline_missing_raw_negative_control",
+      "exit": 0,
+      "expected_exit": 0,
+      "certified_marker": true,
+      "log_sha256": "dc1ad54b7b81e62a8dfb70f090a64c8027dc0fc3b57ccc2cff7318f0b60ed8bf"
+    },
+    {
+      "name": "candidate_complete",
+      "exit": 0,
+      "expected_exit": 0,
+      "certified_marker": true,
+      "log_sha256": "5fdb32c7fc956e4b06a49cad590ace295a4e7db06fd55ce9b0dfbe02aa2ebafb"
+    },
+    {
+      "name": "candidate_missing_raw",
+      "exit": 1,
+      "expected_exit": 1,
+      "certified_marker": false,
+      "log_sha256": "73d750cb9e54c4cd40dea06e637fda9d7853338931235b13b04af940ad44f581"
+    }
+  ],
+  "original_baseline_files_unchanged": 254,
+  "candidate_verifier_sha256": "dd55049190b9b4d11cc64f1490123553b2391d4c86204fea91ff6b04455f7fba"
+}

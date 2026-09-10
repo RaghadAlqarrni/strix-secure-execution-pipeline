@@ -1,0 +1,124 @@
+{
+  "scope": "Named local VBox bundle and VM_Share tar archives; member names only; no extraction or execution",
+  "archives": [
+    {
+      "path": "C:\\Users\\L\\VBox\\_bundle\\pep-p1-update.tar.gz",
+      "bytes": 59254,
+      "sha256": "082cf60fe65a346ed11150846554f05b8adebc5f5efea6f20a5efdae454e34dc",
+      "members": 108,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\VBox\\_bundle\\vbox-project-bundle.tar.gz",
+      "bytes": 204878,
+      "sha256": "3bc7ebd08614d4d6c3caa5bd08552215d945b44130cf8c224b4120bfb8097458",
+      "members": 189,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\Desktop\\VM_Share\\dec6-failed-run-evidence.tar.gz",
+      "bytes": 20508,
+      "sha256": "dc72812d634f5f75d95a55270269f805d5942ac18a6de1610702e13d151940b6",
+      "members": 13,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\Desktop\\VM_Share\\dec6-refrozen-vm-observation.tar.gz",
+      "bytes": 295737,
+      "sha256": "269f8ae37237e35aef28b8950301b608a4aa8427669de2a040657eb70baea5a7",
+      "members": 217,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\Desktop\\VM_Share\\dec7-b7-run-evidence.tar.gz",
+      "bytes": 15901,
+      "sha256": "065c35c67aec32ce835a945a818b527e84788089425b070f2b7350e0f13b32bd",
+      "members": 16,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\Desktop\\VM_Share\\MERGED_reference_fe513ace_do_not_upload.tar.gz",
+      "bytes": 216067,
+      "sha256": "b34948c9b367b5c546f3491ee27b28a81af564b7818c0850abc3e9a6d1f17dc2",
+      "members": 199,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\Desktop\\VM_Share\\pepp1update.tar.gz",
+      "bytes": 59254,
+      "sha256": "082cf60fe65a346ed11150846554f05b8adebc5f5efea6f20a5efdae454e34dc",
+      "members": 108,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\Desktop\\VM_Share\\pre_p1_baseline.tar.gz",
+      "bytes": 192159,
+      "sha256": "894d44d0064d791fdc9361555bfdc69c8a787cf1cc9ec556807c52ca915f8804",
+      "members": 187,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\Desktop\\VM_Share\\strix-gate-bundle.tar.gz",
+      "bytes": 158318,
+      "sha256": "dbec1d86e0c3708a3b879ef82afec1ffe816b93b7695d4bb4b82c0dbf03d0bf1",
+      "members": 66,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\Desktop\\VM_Share\\track-a-c6-final-sealed-evidence.tar.gz",
+      "bytes": 74309,
+      "sha256": "a0b0f147123601a2469698f485a3a05607b009b41977a6ff4eb4ac2b75f6279d",
+      "members": 14,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\Desktop\\VM_Share\\track-a-candidate3.tar.gz",
+      "bytes": 261455,
+      "sha256": "a276852ce25f46b97766df5cabbd2c73631fa9bedfafedd2e9b8e4dc02a10054",
+      "members": 303,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\Desktop\\VM_Share\\track-a-candidate4.tar.gz",
+      "bytes": 261635,
+      "sha256": "76521e8346e56edec6dd9649bcfca9beda5ea8bc07d01a22655a8600cac4425c",
+      "members": 303,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\Desktop\\VM_Share\\track-a-candidate5.tar.gz",
+      "bytes": 268824,
+      "sha256": "1cf54fddf9a0367a20b87f62d7faa68c45540bfca2f3a94d06f9a80926a6c0d6",
+      "members": 305,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\Desktop\\VM_Share\\track-a-candidate6.tar.gz",
+      "bytes": 268943,
+      "sha256": "e7a34f7bb87b9aafa3dd589e74b5678520bfefebaa80b9a060b52042b93156e5",
+      "members": 305,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\Desktop\\VM_Share\\track-a-measurement-run-3b1f1446f3df44eb768215b25d45747b.tar.gz",
+      "bytes": 27597,
+      "sha256": "543d96391471a213ad9d67471e2fc1d867fe2a6032057d605089e4c18c68a6a7",
+      "members": 35,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\Desktop\\VM_Share\\track-a-measurement-run-5e0e09247a8cdd40567015c3ba884314.tar.gz",
+      "bytes": 34155,
+      "sha256": "ed8e8ad87cbb44325625af9e2fca0b607d30fdceb49009c1f185d8cb804ef40c",
+      "members": 42,
+      "potential_upstream_or_image_entries": []
+    },
+    {
+      "path": "C:\\Users\\L\\Desktop\\VM_Share\\track-b-s0a-v8-frozen.tar.gz",
+      "bytes": 9796,
+      "sha256": "4907f6ea6f6b2795c017614c2ee852553daed9e333b6cea07f77a274ea39d60e",
+      "members": 6,
+      "potential_upstream_or_image_entries": []
+    }
+  ]
+}

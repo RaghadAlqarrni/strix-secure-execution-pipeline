@@ -1,0 +1,64 @@
+{
+  "run_id": "run-honest0000000000000000000000",
+  "run_id_source": "control-plane",
+  "schema_version": "strix-b7-e9-v1",
+  "sender": {
+    "container_id": "sbx-container-id",
+    "host_veth": "vethB7",
+    "network_id": "net-internal-id",
+    "src_ip": "fd00:9a17:e9:2::50"
+  },
+  "target": {
+    "ip": "fd00:9a17:e9:1::80",
+    "port": 49177,
+    "network_id": "net-egress-id",
+    "off_link": true
+  },
+  "probe": {
+    "protocol": "udp",
+    "nonce": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  },
+  "packet_attempt": {
+    "observed": true,
+    "source": "tcpdump-host-veth",
+    "rule_identity": "capture-vethB7",
+    "src_ip": "fd00:9a17:e9:2::50",
+    "dst_ip": "fd00:9a17:e9:1::80",
+    "dst_port": 49177,
+    "protocol": "udp",
+    "nonce": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "pcap_sha256": "6666666666666666666666666666666666666666666666666666666666666666"
+  },
+  "enforcement": {
+    "action": "DROP",
+    "preexisting": true,
+    "rule_identity": "DOCKER-ISOLATION:rule-7",
+    "src_ip": "fd00:9a17:e9:2::50",
+    "dst_ip": "fd00:9a17:e9:1::80",
+    "dst_port": 49177,
+    "protocol": "udp",
+    "packets_before": 10,
+    "packets_after": 10
+  },
+  "controls": {
+    "c1_nonce": "1111111111111111111111111111111111111111111111111111111111111111",
+    "c2_nonce": "2222222222222222222222222222222222222222222222222222222222222222"
+  },
+  "receiver": {
+    "ready": true,
+    "c1_seen": true,
+    "c2_seen": true,
+    "measurement_seen": false,
+    "raw_log_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "sender_script_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+  "receiver_script_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+  "calibration": {
+    "run_id": "run-calibration-distinct",
+    "seen": true,
+    "nonce": "7777777777777777777777777777777777777777777777777777777777777777",
+    "sender_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+    "receiver_sha256": "5555555555555555555555555555555555555555555555555555555555555555"
+  },
+  "b7_teardown": true
+}

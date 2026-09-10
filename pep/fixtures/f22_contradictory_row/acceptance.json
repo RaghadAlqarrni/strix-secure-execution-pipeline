@@ -1,0 +1,403 @@
+{
+  "run_id": "run-honest0000000000000000000000",
+  "run_id_source": "control-plane",
+  "layer_a": [
+    {
+      "layer": "A",
+      "id": "A1",
+      "desc": "row 1",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A2",
+      "desc": "row 2",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A3",
+      "desc": "row 3",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A4",
+      "desc": "row 4",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A5",
+      "desc": "row 5",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A6",
+      "desc": "row 6",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A7",
+      "desc": "row 7",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A8",
+      "desc": "row 8",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A9",
+      "desc": "row 9",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A10",
+      "desc": "row 10",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": false,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A11",
+      "desc": "row 11",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A12",
+      "desc": "row 12",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A13",
+      "desc": "row 13",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A14",
+      "desc": "row 14",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A15",
+      "desc": "row 15",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A16",
+      "desc": "row 16",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A17",
+      "desc": "row 17",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A18",
+      "desc": "row 18",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A19",
+      "desc": "row 19",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A20",
+      "desc": "row 20",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A21",
+      "desc": "row 21",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A22",
+      "desc": "row 22",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A23",
+      "desc": "row 23",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A24",
+      "desc": "row 24",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A25",
+      "desc": "row 25",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A26",
+      "desc": "row 26",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A27",
+      "desc": "row 27",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A28",
+      "desc": "row 28",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A29",
+      "desc": "row 29",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "A",
+      "id": "A30",
+      "desc": "row 30",
+      "expect": "DENY",
+      "got": "DENY",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "layer_b": [
+    {
+      "layer": "B",
+      "id": "B1",
+      "desc": "row 1",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B2",
+      "desc": "row 2",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B3",
+      "desc": "row 3",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B4",
+      "desc": "row 4",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B5",
+      "desc": "row 5",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B6",
+      "desc": "row 6",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B7",
+      "desc": "row 7",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B8",
+      "desc": "row 8",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "layer": "B",
+      "id": "B9",
+      "desc": "row 9",
+      "expect": "PROVEN",
+      "got": "PROVEN",
+      "status": "PROVEN",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "layer_a_passed": 30,
+  "layer_a_total": 30,
+  "layer_b_passed": 9,
+  "layer_b_total": 9,
+  "gate_passed": true
+}

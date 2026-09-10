@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+pep/control/
+pep/out/
+pep/collected/
+pep/capki/
+pep/sandbox_ca/
+pep/b7_runtime/
+phase2b/certs/
+test-results/

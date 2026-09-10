@@ -1,0 +1,8 @@
+# Compatibility facts — passive host inventory, 2026-09-10
+
+1. C6 has a verified 254-file baseline. Its PEP and synthetic phase2a/phase2b targets do not establish that the actual upstream Strix checkout or runtime image is present or clean.
+2. Seventeen tar archives in C:/Users/L/VBox/_bundle and C:/Users/L/Desktop/VM_Share were inventoried by member names. No upstream Strix directory, pyproject.toml, uv.lock, OCI layout, image manifest.json or Dockerfile candidate appeared under the declared name filter. Exact paths, sizes and hashes are in test-results/passive-archive-inventory.json. This is a bounded filename inventory, not exhaustive content search, and excludes the guest filesystem.
+3. No runtime fact is inferred from a filename or hash. The next required facts are the exported S0A evidence contents and actual guest image list, followed by selected image digest/platform/config and upstream source identity.
+4. S0A attestation 002 records activation NOT ISSUED and exit 0 OWNER-ATTESTED without an artifact witness. Export must preserve these limits. New delegation cannot retroactively invent earlier activation or a measurement witness.
+5. UID/GID/capabilities, writable paths, browser/Caido roles, supported protocols, syscalls, shared memory and CPU/memory/PID/storage/time ceilings remain NOT_VERIFIED. No agent, component container or provider was started.
+6. Dependency: durable export → transport/host verification → evidence review → selected-image passive inspection → bounded non-agent component manifest → compatibility measurement → exact Track B profile. Local PEP repairs can proceed independently.

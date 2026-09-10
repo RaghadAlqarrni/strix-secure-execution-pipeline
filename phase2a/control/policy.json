@@ -1,0 +1,44 @@
+{
+  "networks": { "172.31.0.0/24": "prog_a", "172.32.0.0/24": "prog_b" },
+  "programs": {
+    "prog_a": {
+      "authorization": { "program_id": "prog_a", "verified_by": "phase2a-harness",
+        "verified_at": 1787152146, "expires_at": 1787238606, "status": "active" },
+      "scope_allow": ["allowed.lab", "*.allowed.lab", "rebind.lab", "other.lab",
+                      "linklocal.lab", "internalonly.lab", "poisoned.lab"],
+      "scope_deny":  ["blocked.allowed.lab"],
+      "allowed_ports": [80],
+      "allowed_methods": ["GET", "POST"],
+      "allow_connect": true,
+      "private_ip_exemptions": ["172.29.0.20", "172.29.0.30", "172.29.0.40"],
+      "authorized_ips": ["172.29.0.20", "172.29.0.40"],
+      "explicit_ip_allowlist": [],
+      "max_requests": 200,
+      "asset_max_requests": { "a_budget": 2 }
+    },
+    "prog_b": {
+      "authorization": { "program_id": "prog_b", "verified_by": "phase2a-harness",
+        "verified_at": 1787145006, "expires_at": 1787148606, "status": "active" },
+      "scope_allow": ["allowed.lab"],
+      "allowed_ports": [80], "allowed_methods": ["GET"],
+      "private_ip_exemptions": ["172.29.0.20"], "authorized_ips": ["172.29.0.20"],
+      "max_requests": 50
+    }
+  },
+  "credentials": {
+    "cred_alpha": { "program_id": "prog_a", "asset_id": "a1",
+                    "destinations": ["allowed.lab"], "secret": "S3CRET-ALPHA-9f2c" },
+    "cred_beta":  { "program_id": "prog_b", "asset_id": "a1",
+                    "destinations": ["allowed.lab"], "secret": "S3CRET-BETA-11ab" }
+  },
+  "dns_zone": {
+    "allowed.lab": ["172.29.0.20"],
+    "blocked.allowed.lab": ["172.29.0.20"],
+    "other.lab": ["172.29.0.40"],
+    "evil.lab": ["172.29.0.30"],
+    "linklocal.lab": ["169.254.169.254"],
+    "internalonly.lab": ["10.0.0.5"],
+    "poisoned.lab": ["172.29.0.20", "169.254.169.254"],
+    "rebind.lab": { "sequence": [["172.29.0.20"], ["172.29.0.30"]] }
+  }
+}
