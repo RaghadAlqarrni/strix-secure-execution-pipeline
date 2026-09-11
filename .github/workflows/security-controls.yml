@@ -1,0 +1,32 @@
+name: Security controls
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-security-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile Python sources
+        run: python -m compileall -q pep phase2a phase2b
+      - name: E10 lifecycle regression
+        run: python pep/fixtures/test_e10_lifecycle.py
+      - name: Gateway lifecycle regression
+        run: python pep/fixtures/test_gateway_lifecycle.py
+      - name: F02/F03 regression
+        run: python pep/fixtures/test_f02_f03_repaired.py
+      - name: Quiescent shutdown regression
+        run: python pep/fixtures/test_quiescent_shutdown.py
+

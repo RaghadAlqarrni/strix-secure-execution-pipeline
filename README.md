@@ -68,6 +68,7 @@ The design separates:
 | `phase2a/` | Policy gateway prototype |
 | `phase2b/` | TLS-aware policy gateway prototype |
 | `verification/` | Evidence and regression artifacts |
+| `governance/` | Access, key-management, monitoring, and incident-response controls |
 | `RELEASE_REQUIREMENTS.md` | Claim-to-evidence release matrix |
 | `ARCHITECTURE_REVIEW.md` | System architecture and standing constraints |
 | `E10_V2_TRANSITION_SPEC.md` | Frozen E10-v2 lifecycle specification |
@@ -102,6 +103,11 @@ Some proof suites require Linux filesystem and socket behavior. Read each runner
 This code is intended for defensive engineering and authorized security research. Authorization scope, target ownership, rate limits, data handling, and applicable law remain the operator's responsibility.
 
 Security findings should be reported through GitHub's private vulnerability reporting workflow described in [SECURITY.md](SECURITY.md).
+
+The current Daybreak-oriented control assessment is recorded in
+[governance/CONTROL_STATUS.md](governance/CONTROL_STATUS.md). It distinguishes
+implemented evidence from planned controls and does not claim organizational
+certification.
 
 ## License
 
