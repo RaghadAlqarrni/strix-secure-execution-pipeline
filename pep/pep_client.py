@@ -68,6 +68,7 @@ def tunnel(host, port=443, path="/ok", method="GET", sni=None, http_host=None,
         s.close()
         return out
     ctx = ssl.create_default_context(cafile=CA)
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
     ctx.check_hostname = check_hostname
     try:
         tls = ctx.wrap_socket(s, server_hostname=(sni or host))
@@ -308,6 +309,7 @@ def main():
                     holder["err"] = "CONNECT_" + b.split(b" ")[1].decode("latin-1", "replace")
                     return
                 ctx = ssl.create_default_context(cafile=CA)
+                ctx.minimum_version = ssl.TLSVersion.TLSv1_2
                 tls = ctx.wrap_socket(s, server_hostname="slow.lab")
                 tls.sendall(f"GET /drip HTTP/1.1\r\nHost: slow.lab\r\n"
                             f"Connection: close\r\n\r\n".encode())

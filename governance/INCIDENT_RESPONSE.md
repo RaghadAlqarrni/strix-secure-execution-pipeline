@@ -50,3 +50,4 @@ Before representing this control as operational, perform one simulated leaked-AP
 4. update this plan;
 5. store the signed result privately because it may contain account metadata.
 
+The first sanitized tabletop was completed on 2026-09-11. Its public, non-sensitive record and verifier are under `governance/exercises/`. Any future exercise containing account metadata, real credential identifiers, target details, or notification records must remain private.

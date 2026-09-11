@@ -12,11 +12,10 @@ This file records implemented controls and gaps. It is not a certification and m
 | SSO, MFA, least-privilege roles, and RBAC for every TAC workspace | Not met | GitHub/OpenAI MFA not independently evidenced; no managed IdP, SSO, or RBAC workspace | Enable MFA; obtain a verified domain and managed workspace before claiming the full control |
 | Vaulted API keys, rotation/revocation, service identities, least privilege, and scoped permissions | Partial | Public repository secret scan found no credential; policy documented in `KEY_MANAGEMENT.md` | Create a dedicated OpenAI project/service identity, use a restricted key, store it in a secret manager, record rotation/revocation evidence |
 | Monitor cyber use and retain model-use logs | Partial | Network-effect audit lifecycle exists; model prompt/output usage logging is not implemented | Implement the schema and retention controls in `MODEL_USE_MONITORING.md` |
-| Documented incident-response process | Documented; exercise pending | `INCIDENT_RESPONSE.md` | Perform and record the first tabletop exercise before attesting |
+| Documented incident-response process | Documented and tabletop-tested; owner adoption pending | `INCIDENT_RESPONSE.md`; `exercises/IR_TABLETOP_2026-09-11.json`; verifier passes | Owner must review, adopt, and maintain the process before attesting; perform a private live revocation drill after a dedicated credential exists |
 | Domain-specific emails for TAC users | Not met | No verified organizational domain evidenced | Use a domain-owned mailbox and verify the domain |
 | Enterprise-controlled devices with encryption, patching, endpoint protection, and endpoint management | Partial | Microsoft Defender active and current Windows security updates observed; disk encryption unavailable to the audit; device is not domain/MDM managed | Verify disk encryption and enroll the device in managed endpoint control |
 
 ## Current safe form decision
 
-Do not select any full enterprise attestation solely because this document exists. The incident-response item becomes supportable only after the owner reviews this policy and completes the recorded tabletop. The key-governance and monitoring items remain incomplete until their technical evidence exists.
-
+Do not select any full enterprise attestation solely because this document exists. The incident-response item becomes supportable only after the owner reviews and adopts the policy; the recorded tabletop is complete and independently reproducible. The key-governance and monitoring items remain incomplete until their technical evidence exists.

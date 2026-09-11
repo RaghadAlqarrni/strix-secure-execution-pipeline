@@ -1,0 +1,10 @@
+{
+  "incident_id": "IR-TTX-2026-09-11",
+  "simulation": true,
+  "trigger": "suspected_exposure_of_fake_openai_key_identifier",
+  "credential_id": "TABLETOP-KEY-ID-0001-NOT-A-REAL-CREDENTIAL",
+  "requested_target": "out-of-scope.example.invalid",
+  "external_effect_occurred": false,
+  "contains_real_credentials": false,
+  "contains_third_party_data": false
+}

@@ -71,6 +71,7 @@ def tunnel(host, port=443, sni=None, verify=True, check_hostname=True,
         return out
 
     ctx = ssl.create_default_context(cafile=CA) if verify else ssl._create_unverified_context()
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
     ctx.check_hostname = check_hostname and verify
     try:
         tls = ctx.wrap_socket(s, server_hostname=(sni or host))

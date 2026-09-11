@@ -274,6 +274,7 @@ def tunnel6(host, port=443, path="/ok", method="GET", sni=None, http_host=None,
         s.close()
         return out
     ctx = ssl.create_default_context(cafile=CA)
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
     ctx.check_hostname = check_hostname
     try:
         tls = ctx.wrap_socket(s, server_hostname=(sni or host))
@@ -463,6 +464,7 @@ def main() -> int:
                 holder["err"] = "CONNECT_DENIED"
                 return
             ctx = ssl.create_default_context(cafile=CA)
+            ctx.minimum_version = ssl.TLSVersion.TLSv1_2
             tls = ctx.wrap_socket(s, server_hostname=SLOW6_HOST)
             tls.sendall(f"GET /drip HTTP/1.1\r\nHost: {SLOW6_HOST}\r\n"
                         f"Connection: close\r\n\r\n".encode())

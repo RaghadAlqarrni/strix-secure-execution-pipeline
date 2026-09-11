@@ -21,6 +21,8 @@ jobs:
           python-version: "3.12"
       - name: Compile Python sources
         run: python -m compileall -q pep phase2a phase2b
+      - name: Verify incident-response tabletop evidence
+        run: python governance/exercises/verify_tabletop.py
       - name: E10 lifecycle regression
         run: python pep/fixtures/test_e10_lifecycle.py
       - name: Gateway lifecycle regression
@@ -29,4 +31,3 @@ jobs:
         run: python pep/fixtures/test_f02_f03_repaired.py
       - name: Quiescent shutdown regression
         run: python pep/fixtures/test_quiescent_shutdown.py
-

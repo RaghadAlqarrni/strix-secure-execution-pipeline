@@ -135,6 +135,7 @@ class DualStackHTTPServer(ThreadingHTTPServer):
 
 if __name__ == "__main__":
     ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
     ctx.load_cert_chain(CERT, KEY)
 
     # Dual-stack is the intended configuration. A host with no IPv6 must

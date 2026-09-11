@@ -1,0 +1,27 @@
+{
+  "exercise_id": "IR-TTX-2026-09-11",
+  "exercise_type": "tabletop",
+  "started_at_utc": "2026-09-11T00:09:28Z",
+  "completed_at_utc": "2026-09-11T00:09:28Z",
+  "scenario": "A fake OpenAI credential identifier is reported together with an attempted request to a target outside the authorized bug-bounty scope.",
+  "source_event_sha256": "4899d7d0d4393bda3907be40a5495493d744b2677a223a0e4c3b0e6deeafd066",
+  "live_actions_executed": false,
+  "steps": [
+    {"stage": "detect", "status": "PASS", "action": "Classified the simulated event as SEV-1."},
+    {"stage": "stop", "status": "PASS", "action": "Invoked the documented kill-switch procedure and denied new execution in the walkthrough."},
+    {"stage": "contain", "status": "PASS", "action": "Walked through key revocation, session termination, and runner isolation using only the fake identifier."},
+    {"stage": "assess_authorization", "status": "PASS", "action": "Classified the .invalid target as outside authorized scope and confirmed no external effect occurred."},
+    {"stage": "preserve_evidence", "status": "PASS", "action": "Preserved the sanitized source event and recorded its SHA-256 digest."},
+    {"stage": "notify", "status": "PASS", "action": "Identified OpenAI and the affected program disclosure channel as notification paths; no message was sent because the incident is simulated."},
+    {"stage": "eradicate", "status": "PASS", "action": "Walked through removing the fake identifier and requiring a policy/verifier correction before recovery."},
+    {"stage": "recover", "status": "PASS", "action": "Walked through issuing a separately scoped replacement and rerunning release gates; no real credential was created."},
+    {"stage": "review", "status": "PASS", "action": "Recorded results and residual gaps in the repository governance record."}
+  ],
+  "result": "PASS_TABLETOP_ONLY",
+  "residual_gaps": [
+    "Dedicated vaulted OpenAI service credential and rotation/revocation evidence are not yet implemented.",
+    "Model request and response audit logging is not yet implemented.",
+    "A live credential-revocation drill must be performed after the dedicated credential exists.",
+    "The repository owner must review, adopt, and maintain the incident-response process before making a legal attestation."
+  ]
+}

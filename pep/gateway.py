@@ -542,6 +542,7 @@ class Gateway(BaseHTTPRequestHandler):
         fam = socket.AF_INET6 if state.pin.family == "ipv6" else socket.AF_INET
         up_ctx = ssl.create_default_context(
             cafile=os.environ.get("PEP_UPSTREAM_CA") or None)
+        up_ctx.minimum_version = ssl.TLSVersion.TLSv1_2
         up_ctx.check_hostname = True
         up_ctx.verify_mode = ssl.CERT_REQUIRED
 

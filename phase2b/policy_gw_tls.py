@@ -203,6 +203,7 @@ class TLSGateway(BaseHTTPRequestHandler):
             seen_sni[0] = sni
 
         ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        ctx.minimum_version = ssl.TLSVersion.TLSv1_2
         ctx.load_cert_chain(paths[0], paths[1])
         ctx.sni_callback = sni_cb
 
@@ -261,6 +262,7 @@ class TLSGateway(BaseHTTPRequestHandler):
         # Obligation 7: connect to the PINNED ip; validate the name against the
         # upstream CA. Obligation 8: verification failure fails closed.
         up_ctx = ssl.create_default_context(cafile=os.path.join(CERT_DIR, "upca.crt"))
+        up_ctx.minimum_version = ssl.TLSVersion.TLSv1_2
         up_ctx.check_hostname = True
         up_ctx.verify_mode = ssl.CERT_REQUIRED
         try:
